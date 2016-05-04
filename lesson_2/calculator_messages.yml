@@ -1,0 +1,16 @@
+# calculator_messages.yml
+
+en:  
+  welcome: "Welcome to Calculator! Enter your name:"
+  valid_name: "Invalid name"
+  hi: "Hi #{name}!"
+  first_number: "What's the first number?"
+  second_number: "What's the second number?"
+  invalid_number: "Invalid Number."
+es:
+  welcome: "hola"
+  valid_name: "Invalid hola"
+  hi: "hola #{name}!"
+  first_number: "hola's the first number?"
+  second_number: "What's the hola number?"
+  invalid_number: "Invalid hola."
