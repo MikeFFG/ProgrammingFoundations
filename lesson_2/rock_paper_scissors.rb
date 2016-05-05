@@ -30,10 +30,10 @@ end
 
 def display_results(player, computer)
   if win?(player, computer)
-    prompt("You won!")
+    prompt("You won this round!")
     keep_score('player')
   elsif win?(computer, player)
-    prompt("Computer won!")
+    prompt("Computer won this round!")
     keep_score('computer')
   else
     prompt("It's a tie!")
@@ -48,40 +48,63 @@ def keep_score(round_winner)
   end
 end
 
+# Main Loop
 loop do
 
-  choice = ''
-
+  # Single Game Loop
   loop do
-    message_string = <<-MSG
-      Choose one:
-            r for Rock
-            p for Paper
-            sc for Scissors
-            l for Lizard
-            sp for Spock
-    MSG
-    prompt(message_string)
-    choice = gets.chomp.downcase
 
-    if VALID_CHOICES_HASH.include?(choice)
-      choice = VALID_CHOICES_HASH[choice]
-      break
-    else
-      prompt("That's not a valid choice.")
+    choice = ''
+
+    loop do
+      message_string = <<-MSG
+        Choose one:
+              r for Rock
+              p for Paper
+              sc for Scissors
+              l for Lizard
+              sp for Spock
+      MSG
+      prompt(message_string)
+      choice = gets.chomp.downcase
+
+      if VALID_CHOICES_HASH.include?(choice)
+        choice = VALID_CHOICES_HASH[choice]
+        break
+      else
+        prompt("That's not a valid choice.")
+      end
     end
+
+    computer_choice = OPTIONS.sample
+
+    puts("You chose: #{choice}; Computer chose: #{computer_choice}")
+
+    display_results(choice, computer_choice)
+
+    prompt("Current score is:\n Player: #{$score[0]} \n Computer: #{$score[1]}")
+
+    # Play again automatically unless someone reaches 5 points
+    if $score[0] == 5
+      prompt("You reached 5 points and won!")
+    elsif $score[1] == 5
+      prompt("Computer reached 5 points and won :(")
+    else
+      next
+    end
+
+    break
   end
 
-  computer_choice = OPTIONS.sample
 
-  puts("You chose: #{choice}; Computer chose: #{computer_choice}")
+  # Play again?
 
-  display_results(choice, computer_choice)
-
-  prompt("Current score is:\n Player: #{$score[0]} \n Computer: #{$score[1]}")
   prompt("Do you want to play again?")
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
+
+  # reset score
+  $score = [0,0]
 end
 
-prompt("Thank you for playing. Good bye!")
+prompt("Thank you for playing. Goodbye!")
