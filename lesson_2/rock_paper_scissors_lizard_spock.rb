@@ -1,4 +1,4 @@
-# rock_paper_scissors.rb
+# rock_paper_scissors_lizard_spock.rb
 
 # Constants
 
@@ -8,6 +8,14 @@ OPTIONS = %w(rock paper scissors lizard spock)
 # Variables
 
 $score = [0, 0] # player is 1st and computer is second
+message_string = <<-MSG 
+Choose one:
+        r for Rock
+        p for Paper
+        sc for Scissors
+        l for Lizard
+        sp for Spock
+MSG
 
 # Methods
 
@@ -48,8 +56,15 @@ def keep_score(round_winner)
   end
 end
 
+def clear()
+  system "clear"
+end
+
 # Main Loop
 loop do
+
+  prompt("Welcome to Rock Paper Scissors Lizard Spock.")
+  prompt("First player to 5 points wins!")
 
   # Single Game Loop
   loop do
@@ -57,14 +72,7 @@ loop do
     choice = ''
 
     loop do
-      message_string = <<-MSG
-        Choose one:
-              r for Rock
-              p for Paper
-              sc for Scissors
-              l for Lizard
-              sp for Spock
-      MSG
+
       prompt(message_string)
       choice = gets.chomp.downcase
 
@@ -72,14 +80,14 @@ loop do
         choice = VALID_CHOICES_HASH[choice]
         break
       else
+        clear
         prompt("That's not a valid choice.")
       end
     end
 
     computer_choice = OPTIONS.sample
 
-    # Clear screen
-    system "clear"
+    clear
 
     puts("You chose: #{choice}; Computer chose: #{computer_choice}")
 
@@ -109,8 +117,7 @@ loop do
   # Reset score
   $score = [0,0]
 
-  # Clear screen
-  system "clear"
+  clear
 end
 
 prompt("Thank you for playing. Goodbye!")
