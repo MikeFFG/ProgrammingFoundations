@@ -78,6 +78,9 @@ loop do
 
     computer_choice = OPTIONS.sample
 
+    # Clear screen
+    system "clear"
+
     puts("You chose: #{choice}; Computer chose: #{computer_choice}")
 
     display_results(choice, computer_choice)
@@ -103,8 +106,11 @@ loop do
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
 
-  # reset score
+  # Reset score
   $score = [0,0]
+
+  # Clear screen
+  system "clear"
 end
 
 prompt("Thank you for playing. Goodbye!")
