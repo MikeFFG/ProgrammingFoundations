@@ -1,7 +1,15 @@
 # rock_paper_scissors.rb
 
+# Constants
+
 VALID_CHOICES_HASH = {'r' => 'rock', 'p' => 'paper', 'sc' => 'scissors', 'l' => 'lizard', 'sp' => 'spock'}
 OPTIONS = %w(rock paper scissors lizard spock)
+
+# Variables
+
+$score = [0, 0] # player is 1st and computer is second
+
+# Methods
 
 def prompt(message)
   puts "=> #{message}"
@@ -23,15 +31,27 @@ end
 def display_results(player, computer)
   if win?(player, computer)
     prompt("You won!")
+    keep_score('player')
   elsif win?(computer, player)
     prompt("Computer won!")
+    keep_score('computer')
   else
     prompt("It's a tie!")
   end
 end
 
+def keep_score(round_winner)
+  if round_winner == 'player'
+    $score[0] += 1
+  elsif round_winner == 'computer'
+    $score[1] += 1
+  end
+end
+
 loop do
+
   choice = ''
+
   loop do
     message_string = <<-MSG
       Choose one:
@@ -58,6 +78,7 @@ loop do
 
   display_results(choice, computer_choice)
 
+  prompt("Current score is:\n Player: #{$score[0]} \n Computer: #{$score[1]}")
   prompt("Do you want to play again?")
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
