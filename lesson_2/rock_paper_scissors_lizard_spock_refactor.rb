@@ -1,119 +1,165 @@
 # rock_paper_scissors_lizard_spock.rb
 
-# Constants
-
-VALID_CHOICES_HASH = {'r' => 'rock', 'p' => 'paper', 'sc' => 'scissors', 'l' => 'lizard', 'sp' => 'spock'}
-OPTIONS = %w(rock paper scissors lizard spock)
-
-# Variables
-
-choice_string = <<-MSG 
-Choose one:
-        r for Rock
-        p for Paper
-        sc for Scissors
-        l for Lizard
-        sp for Spock
-MSG
-
-score = { "player" => 0, "computer" => 0 }
-
-# Methods
+VALID_CHOICES_HASH = { 'r' => 'rock', 'p' => 'paper', 'sc' => 'scissors', 'l' => 'lizard', 'sp' => 'spock' }
+WINS = {
+  'rock' => %w(scissors lizard),
+  'paper' => %w(rock spock),
+  'scissors' => %w(paper lizard),
+  'lizard' => %w(paper spock),
+  'spock' => %w(rock scissors)
+}
 
 def prompt(message)
   puts "=> #{message}"
 end
 
 def win?(first, second)
-  (first == 'rock' && second == 'scissors') ||
-    (first == 'rock' && second == 'lizard') ||
-    (first == 'paper' && second == 'rock') ||
-    (first == 'paper' && second == 'spock') ||
-    (first == 'scissors' && second == 'paper') ||
-    (first == 'scissors' && second == 'lizard') ||
-    (first == 'lizard' && second == 'spock') ||
-    (first == 'lizard' && second == 'paper') ||
-    (first == 'spock' && second == 'rock') ||
-    (first == 'spock' && second == 'scissors')
+  WINS[first].include?(second)
 end
 
-def display_results(player, computer, score)
-  if win?(player, computer)
-    prompt("You won this round!")
-  elsif win?(computer, score)
-    prompt("Computer won this round!")
+def calculate_winner(choices)
+  if win?(choices[:player], choices[:computer])
+    return :player
+  elsif win?(choices[:computer], choices[:player])
+    return :computer
   else
-    prompt("It's a tie!")
+    return :tie
   end
 end
 
-def keep_score(player, computer, current_score)
-  if win?(player, computer)
-    current_score["player"] += 1
-  elsif win?(computer, player)
-    current_score["computer"] += 1
+def calculate_score(score, winner)
+  if winner == :player
+    score[:player] += 1
+  elsif winner == :computer
+    score[:computer] += 1
+  end
+  score
+end
+
+def clear_screen
+  system('clear') || system('cls')
+end
+
+def display_round_winner(winner)
+  if winner == :player
+    prompt("You won this round!")
+  elsif winner == :computer
+    prompt("Computer won this round...")
+  else
+    prompt("This round is a tie.")
+  end
+  prompt("")
+end
+
+def display_game_winner(score)
+  if score[:player] == 5
+    prompt("You won the game!!!")
+    prompt("")
+  elsif score[:computer] == 5
+    prompt("Sorry you lost!!! :(")
+    prompt("")
   end
 end
 
-def clear()
-  system "clear"
+def display_score(score, final)
+  if final == "final"
+    prompt("Final score is:")
+  else
+    prompt("Current score is:")
+  end
+  prompt("Player: #{score[:player]}")
+  prompt("Computer: #{score[:computer]}")
+  prompt("")
 end
 
-# Main Loop
-loop do
+def display_message_string
+  message_string = <<-MSG
+Choose one:
+   r for Rock
+   p for Paper
+   sc for Scissors
+   l for Lizard
+   sp for Spock
+  MSG
+  prompt(message_string)
+end
 
-  prompt("Welcome to Rock Paper Scissors Lizard Spock.")
-  prompt("First player to 5 points wins!")
+def get_player_choice(possible_choices)
+  choice = ''
 
-  # Single Game Loop
   loop do
-
-    player_choice = ''
-
-    loop do
-
-      prompt(choice_string)
-      choice = gets.chomp.downcase
-
-      if VALID_CHOICES_HASH.include?(choice)
-        choice = VALID_CHOICES_HASH[choice]
-        break
-      else
-        clear
-        prompt("That's not a valid choice.")
-      end
-    end
-
-    computer_choice = OPTIONS.sample
-
-    clear
-
-    puts("You chose: #{player_choice}; Computer chose: #{computer_choice}")
-
-    display_results(player_choice, computer_choice, score)
-    keep_score(player_choice, computer_choice, score)
-
-    prompt("Current score is:\n Player: #{score[:player]} \n Computer: #{score[:computer]}")
-
-    # Play again automatically unless someone reaches 5 points
-    if score[:player] == 5
-      prompt("You reached 5 points and won!")
-    elsif score[:computer] == 5
-      prompt("Computer reached 5 points and won :(")
+    display_message_string
+    choice = gets.chomp.downcase
+    if possible_choices.include?(choice)
+      choice = possible_choices[choice]
+      break
     else
-      next
+      clear_screen
+      prompt("That's not a valid choice.")
     end
-
-    break
   end
-
-  # Play again?
-
-  prompt("Do you want to play again?")
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
-
-  clear
+  choice
 end
 
+def get_computer_choice(possible_choices)
+  possible_choices.values.sample
+end
+
+def play_single_round(possible_choices)
+  choices = {}
+  choices[:player] = get_player_choice(possible_choices)
+  choices[:computer] = get_computer_choice(possible_choices)
+  choices
+end
+
+def play_again?
+  loop do
+    answer = gets.chomp
+    if answer.casecmp('y') == 0
+      return 'y'
+    elsif answer.casecmp('n') == 0
+      return 'n'
+    else
+      prompt("Please type y or n only.")
+    end
+  end
+end
+
+clear_screen
+prompt("Welcome to Rock Paper Scissors Lizard Spock.")
+prompt("")
+
+loop do
+  prompt("First player to 5 points wins!")
+  prompt("")
+
+  current_score = { player: 0, computer: 0 }
+
+  loop do
+    choices = play_single_round(VALID_CHOICES_HASH)
+    clear_screen
+    prompt("You chose: #{choices[:player]}; Computer chose: #{choices[:computer]}")
+    prompt("")
+
+    winner = calculate_winner(choices)
+    current_score = calculate_score(current_score, winner)
+
+    if current_score[:player] == 5 || current_score[:computer] == 5
+      prompt("Game Over")
+      prompt("")
+      display_game_winner(current_score)
+      display_score(current_score, "final")
+      break
+    end
+
+    display_score(current_score, "")
+  end
+
+  prompt("Do you want to play again? Type y for yes or n for no.")
+  break if play_again? == 'n'
+
+  clear_screen
+end
+
+clear_screen
 prompt("Thank you for playing. Goodbye!")
