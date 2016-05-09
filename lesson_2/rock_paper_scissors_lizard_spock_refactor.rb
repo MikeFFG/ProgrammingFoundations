@@ -1,12 +1,12 @@
 # rock_paper_scissors_lizard_spock.rb
 
-VALID_CHOICES_HASH = { 'r' => 'rock', 'p' => 'paper', 'sc' => 'scissors', 'l' => 'lizard', 'sp' => 'spock' }
+VALID_CHOICES_HASH = { 'r' => :rock, 'p' => :paper, 'sc' => :scissors, 'l' => :lizard, 'sp' => :spock }
 WINS = {
-  'rock' => %w(scissors lizard),
-  'paper' => %w(rock spock),
-  'scissors' => %w(paper lizard),
-  'lizard' => %w(paper spock),
-  'spock' => %w(rock scissors)
+  :rock => %i(scissors lizard),
+  :paper => %i(rock spock),
+  :scissors => %i(paper lizard),
+  :lizard => %i(paper spock),
+  :spock => %i(rock scissors)
 }
 
 def prompt(message)
@@ -84,21 +84,20 @@ Choose one:
   prompt(message_string)
 end
 
-def get_player_choice(possible_choices)
-  choice = ''
+def ask_for_choice
+  display_message_string
+  gets.chomp.downcase
+end
 
+def get_player_choice(possible_choices)
   loop do
-    display_message_string
-    choice = gets.chomp.downcase
+    choice = ask_for_choice
     if possible_choices.include?(choice)
-      choice = possible_choices[choice]
-      break
+      return possible_choices[choice]
     else
-      clear_screen
-      prompt("That's not a valid choice.")
+      clear_screen && prompt("That's not a valid choice.")
     end
   end
-  choice
 end
 
 def get_computer_choice(possible_choices)
