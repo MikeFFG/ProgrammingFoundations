@@ -1,0 +1,1 @@
+rolling_buffer2 creates an extra array and does not alter the input arg.

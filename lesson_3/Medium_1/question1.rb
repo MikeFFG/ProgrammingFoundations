@@ -1,0 +1,1 @@
+(0...10).each { |n| puts (" " * n) + "The Flinstones Rock!" }
