@@ -1,9 +1,14 @@
+require 'pry'
+
 INITIAL_MARKER = ' '.freeze
 PLAYER_MARKER = 'X'.freeze
 COMPUTER_MARKER = 'O'.freeze
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
                 [[1, 5, 9], [3, 5, 7]]
+THREATENING_LINES = [[1, 2], [2, 3], [4, 5], [5, 6], [7, 8], [8, 9]] +
+                    [[1, 4], [4, 7], [2, 5], [5, 8], [3, 6], [6, 9]] +
+                    [[1, 5], [5, 9], [3, 5], [5, 7]]
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -67,6 +72,14 @@ def someone_won?(brd)
   !!detect_winner(brd)
 end
 
+def find_at_risk_square(line, brd)
+  if brd.values_at(*line).count(PLAYER_MARKER) == 2
+    brd.select{ |k,v| line.include?(k) && v == ' '}.keys.first
+  else
+    nil
+  end
+end
+
 def detect_winner(brd)
   WINNING_LINES.each do |line|
     if brd.values_at(*line).count(PLAYER_MARKER) == 3
@@ -90,7 +103,16 @@ def player_places_piece!(brd)
 end
 
 def computer_places_piece!(brd)
-  square = empty_squares(brd).sample
+  square = nil
+  WINNING_LINES.each do |line|
+    square = find_at_risk_square(line, brd)
+    break if square
+  end
+
+  if !square
+    square = empty_squares(brd).sample
+  end
+
   brd[square] = COMPUTER_MARKER
 end
 

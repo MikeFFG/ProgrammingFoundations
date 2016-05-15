@@ -1,0 +1,3 @@
+# Defense -
+
+# 1. Find place where there is two X's in a row...
