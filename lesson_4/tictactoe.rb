@@ -1,5 +1,3 @@
-require 'pry'
-
 INITIAL_MARKER = ' '.freeze
 PLAYER_MARKER = 'X'.freeze
 COMPUTER_MARKER = 'O'.freeze
@@ -11,22 +9,26 @@ def prompt(msg)
   puts "=> #{msg}"
 end
 
+def clear_screen
+  system('clear') || system('cls')
+end
+
 def joinor(ary, dlm = ',', word = 'or')
   new_string = ''
   ary.each_index do |num|
-    if num == (ary.length - 1)
-      new_string += "#{word} #{ary[num].to_s}"
-    else
-      new_string += "#{ary[num].to_s}, "
-    end
+    new_string += if num == ary.length - 1
+                    "#{word} #{ary[num]}"
+                  else
+                    "#{ary[num]}#{dlm} "
+                  end
   end
   new_string
 end
 
 # rubocop:disable Metrics/AbcSize
 def display_board(brd)
-  system "clear"
-  puts "You're an #{PLAYER_MARKER}. Computer is a #{COMPUTER_MARKER}."
+  clear_screen
+  puts "You're an #{PLAYER_MARKER}. Computer is an #{COMPUTER_MARKER}."
   puts ""
   puts "     |     |"
   puts "  #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}"
@@ -64,9 +66,9 @@ end
 def detect_winner(brd)
   WINNING_LINES.each do |line|
     if brd.values_at(*line).count(PLAYER_MARKER) == 3
-      return 'Player'
+      return :player
     elsif brd.values_at(*line).count(COMPUTER_MARKER) == 3
-      return 'Computer'
+      return :computer
     end
   end
   nil
@@ -75,7 +77,7 @@ end
 def player_places_piece!(brd)
   square = ''
   loop do
-    prompt "Choose a square: #{joinor(empty_squares(brd),',','or')}."
+    prompt "Choose a square: #{joinor(empty_squares(brd), ',', 'or')}."
     square = gets.chomp.to_i
     break if empty_squares(brd).include?(square)
     prompt "Sorry, that's not a valid choice."
@@ -88,30 +90,69 @@ def computer_places_piece!(brd)
   brd[square] = COMPUTER_MARKER
 end
 
+def display_current_score(score)
+  prompt "Current Score -  Player: #{score[:player]}. " \
+         "Computer: #{score[:computer]}."
+  prompt ""
+end
+
 loop do
-  board = initialize_board
+  prompt "Welcome to Tic Tac Toe!"
+  prompt "First player to win 5 rounds wins the game!"
+
+  current_score = { player: 0, computer: 0 }
+  continue_game = 'n'
 
   loop do
+    board = initialize_board
+
+    loop do
+      display_board(board)
+      display_current_score(current_score)
+
+      player_places_piece!(board)
+      break if someone_won?(board) || board_full?(board)
+
+      computer_places_piece!(board)
+      break if someone_won?(board) || board_full?(board)
+    end
+
     display_board(board)
 
-    player_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+    if someone_won?(board)
+      prompt "#{detect_winner(board).capitalize} won the round!"
+      current_score[detect_winner(board)] += 1
+    else
+      prompt "It's a tie!"
+    end
 
-    computer_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+    display_current_score(current_score)
+
+    break if current_score[:player] == 5 || current_score[:computer] == 5
+
+    loop do
+      prompt "Ready for the next round? (y or n)"
+      continue_game = gets.chomp.downcase
+      break if continue_game == 'y' || continue_game == 'n'
+      clear_screen
+      prompt "That's not a valid choice!"
+    end
+    break unless continue_game.downcase.start_with?('y')
   end
 
-  display_board(board)
+  clear_screen
 
-  if someone_won?(board)
-    prompt "#{detect_winner(board)} won!"
-  else
-    prompt "It's a tie!"
+  if continue_game == 'n'
+    prompt "Game cancelled..."
+    break
   end
 
-  prompt "Play again? (y or n)"
+  prompt "Game Over!"
+  prompt "#{current_score.key(5).capitalize} won the game!!!!"
+  prompt ""
+  prompt "Play new game? (y or n)"
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
 end
 
-prompt "Thanks for playing Tic Tac Toe!"
+prompt "Thanks for playing Tic Tac Toe! Buh-bye!"
