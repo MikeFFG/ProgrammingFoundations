@@ -99,6 +99,14 @@ def player_places_piece!(brd)
   brd[square] = PLAYER_MARKER
 end
 
+def computer_fallbacks(brd)
+  if empty_squares(brd).include?(5)
+    return 5
+  else
+    return empty_squares(brd).sample
+  end
+end
+
 def computer_places_piece!(brd)
   square = nil
   WINNING_LINES.each do |line|
@@ -113,12 +121,8 @@ def computer_places_piece!(brd)
     end
   end
 
-  if !square && empty_squares(brd).include?(5)
-    square = 5
-  end
-
   if !square
-    square = empty_squares(brd).sample
+    square = computer_fallbacks(brd)
   end
 
   brd[square] = COMPUTER_MARKER
@@ -135,12 +139,28 @@ def choose_who_goes_first
     prompt "Who should go first? p for player, c for computer"
     answer = gets.chomp
     if answer.casecmp('p') == 0
-      return 'p'
+      return 'player'
     elsif answer.casecmp('c') == 0
-      return 'c'
+      return 'computer'
     else
       prompt("Please type p or c only.")
     end
+  end
+end
+
+def place_piece!(brd, turn)
+  if turn == 'player'
+    player_places_piece!(brd)
+  elsif turn == 'computer'
+    computer_places_piece!(brd)
+  end
+end
+
+def alternate_player(turn)
+  if turn == 'player'
+    return 'computer'
+  elsif turn == 'computer'
+    return 'player'
   end
 end
 
@@ -151,37 +171,22 @@ loop do
 
   current_score = { player: 0, computer: 0 }
   continue_game = 'n'
-  first_turn = 'choose'
 
   loop do
     board = initialize_board
+    current_player = 'choose'
 
     loop do
-      if first_turn == 'choose'
-        first_turn = choose_who_goes_first
+      if current_player == 'choose'
+        current_player = choose_who_goes_first
       end
 
       display_board(board)
       display_current_score(current_score)
 
-      if first_turn == 'p'
-
-        player_places_piece!(board)
-        break if someone_won?(board) || board_full?(board)
-        computer_places_piece!(board)
-        break if someone_won?(board) || board_full?(board)
-
-      elsif first_turn == 'c'
-
-        computer_places_piece!(board)
-        break if someone_won?(board) || board_full?(board)
-
-        display_board(board)
-
-        player_places_piece!(board)
-        break if someone_won?(board) || board_full?(board)
-
-      end
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
+      break if someone_won?(board) || board_full?(board)
     end
 
     display_board(board)
