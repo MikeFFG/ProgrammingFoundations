@@ -9,8 +9,16 @@ def prompt(msg)
   puts "=> #{msg}"
 end
 
+def valid_choice_prompt
+  prompt "Sorry, that's not a valid choice."
+end
+
 def clear_screen
   system('clear') || system('cls')
+end
+
+def get_choice
+
 end
 
 def joinor(ary, dlm = ',', word = 'or')
@@ -80,7 +88,7 @@ def player_places_piece!(brd)
     prompt "Choose a square: #{joinor(empty_squares(brd), ',', 'or')}."
     square = gets.chomp.to_i
     break if empty_squares(brd).include?(square)
-    prompt "Sorry, that's not a valid choice."
+    valid_choice_prompt
   end
   brd[square] = PLAYER_MARKER
 end
@@ -134,10 +142,9 @@ loop do
       prompt "Ready for the next round? (y or n)"
       continue_game = gets.chomp.downcase
       break if continue_game == 'y' || continue_game == 'n'
-      clear_screen
-      prompt "That's not a valid choice!"
+      valid_choice_prompt
     end
-    break unless continue_game.downcase.start_with?('y')
+    break unless continue_game.downcase == 'y'
   end
 
   clear_screen
@@ -150,8 +157,14 @@ loop do
   prompt "Game Over!"
   prompt "#{current_score.key(5).capitalize} won the game!!!!"
   prompt ""
-  prompt "Play new game? (y or n)"
-  answer = gets.chomp
+
+  answer = ''
+  loop do
+    prompt "Play new game? (y or n)"
+    answer = gets.chomp
+    break if answer == 'y' || answer == 'n'
+    valid_choice_prompt
+  end
   break unless answer.downcase.start_with?('y')
 end
 
