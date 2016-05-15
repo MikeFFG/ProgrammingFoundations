@@ -6,9 +6,6 @@ COMPUTER_MARKER = 'O'.freeze
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
                 [[1, 5, 9], [3, 5, 7]]
-THREATENING_LINES = [[1, 2], [2, 3], [4, 5], [5, 6], [7, 8], [8, 9]] +
-                    [[1, 4], [4, 7], [2, 5], [5, 8], [3, 6], [6, 9]] +
-                    [[1, 5], [5, 9], [3, 5], [5, 7]]
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -25,10 +22,12 @@ end
 def joinor(ary, dlm = ',', word = 'or')
   new_string = ''
   ary.each_index do |num|
-    new_string += if num == ary.length - 1
+    new_string += if num == ary.length - 1 && ary.length > 1
                     "#{word} #{ary[num]}"
-                  else
+                  elsif ary.length > 2
                     "#{ary[num]}#{dlm} "
+                  else
+                    "#{ary[num]} "
                   end
   end
   new_string
@@ -92,7 +91,7 @@ end
 def player_places_piece!(brd)
   square = ''
   loop do
-    prompt "Choose a square: #{joinor(empty_squares(brd), ',', 'or')}."
+    prompt "Choose a square: #{joinor(empty_squares(brd), ',', 'or')}"
     square = gets.chomp.to_i
     break if empty_squares(brd).include?(square)
     valid_choice_prompt
@@ -131,25 +130,58 @@ def display_current_score(score)
   prompt ""
 end
 
+def choose_who_goes_first
+  loop do
+    prompt "Who should go first? p for player, c for computer"
+    answer = gets.chomp
+    if answer.casecmp('p') == 0
+      return 'p'
+    elsif answer.casecmp('c') == 0
+      return 'c'
+    else
+      prompt("Please type p or c only.")
+    end
+  end
+end
+
 loop do
+  clear_screen
   prompt "Welcome to Tic Tac Toe!"
   prompt "First player to win 5 rounds wins the game!"
 
   current_score = { player: 0, computer: 0 }
   continue_game = 'n'
+  first_turn = 'choose'
 
   loop do
     board = initialize_board
 
     loop do
+      if first_turn == 'choose'
+        first_turn = choose_who_goes_first
+      end
+
       display_board(board)
       display_current_score(current_score)
 
-      player_places_piece!(board)
-      break if someone_won?(board) || board_full?(board)
+      if first_turn == 'p'
 
-      computer_places_piece!(board)
-      break if someone_won?(board) || board_full?(board)
+        player_places_piece!(board)
+        break if someone_won?(board) || board_full?(board)
+        computer_places_piece!(board)
+        break if someone_won?(board) || board_full?(board)
+
+      elsif first_turn == 'c'
+
+        computer_places_piece!(board)
+        break if someone_won?(board) || board_full?(board)
+
+        display_board(board)
+
+        player_places_piece!(board)
+        break if someone_won?(board) || board_full?(board)
+
+      end
     end
 
     display_board(board)
