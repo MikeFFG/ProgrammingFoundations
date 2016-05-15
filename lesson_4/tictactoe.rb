@@ -72,8 +72,8 @@ def someone_won?(brd)
   !!detect_winner(brd)
 end
 
-def find_at_risk_square(line, brd)
-  if brd.values_at(*line).count(PLAYER_MARKER) == 2
+def find_at_risk_square(line, brd, marker)
+  if brd.values_at(*line).count(marker) == 2
     brd.select { |k, v| line.include?(k) && v == ' ' }.keys.first
   end
 end
@@ -103,8 +103,19 @@ end
 def computer_places_piece!(brd)
   square = nil
   WINNING_LINES.each do |line|
-    square = find_at_risk_square(line, brd)
+    square = find_at_risk_square(line, brd, COMPUTER_MARKER)
     break if square
+  end
+
+  if !square
+    WINNING_LINES.each do |line|
+      square = find_at_risk_square(line, brd, PLAYER_MARKER)
+      break if square
+    end
+  end
+
+  if !square && empty_squares(brd).include?(5)
+    square = 5
   end
 
   if !square
