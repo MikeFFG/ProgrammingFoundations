@@ -74,9 +74,7 @@ end
 
 def find_at_risk_square(line, brd)
   if brd.values_at(*line).count(PLAYER_MARKER) == 2
-    brd.select{ |k,v| line.include?(k) && v == ' '}.keys.first
-  else
-    nil
+    brd.select { |k, v| line.include?(k) && v == ' ' }.keys.first
   end
 end
 
@@ -162,7 +160,7 @@ loop do
       break if continue_game == 'y' || continue_game == 'n'
       valid_choice_prompt
     end
-    break unless continue_game.downcase == 'y'
+    break unless continue_game.casecmp('y') == 0
   end
 
   clear_screen
@@ -183,7 +181,7 @@ loop do
     break if answer == 'y' || answer == 'n'
     valid_choice_prompt
   end
-  break unless answer.downcase.start_with?('y')
+  break unless answer.casecmp('y') == 0
 end
 
 prompt "Thanks for playing Tic Tac Toe! Buh-bye!"
