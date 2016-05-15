@@ -17,10 +17,6 @@ def clear_screen
   system('clear') || system('cls')
 end
 
-def get_choice
-
-end
-
 def joinor(ary, dlm = ',', word = 'or')
   new_string = ''
   ary.each_index do |num|
