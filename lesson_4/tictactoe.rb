@@ -73,7 +73,7 @@ end
 
 def find_at_risk_square(line, brd, marker)
   if brd.values_at(*line).count(marker) == 2
-    brd.select { |k, v| line.include?(k) && v == ' ' }.keys.first
+    brd.select { |key, value| line.include?(key) && value == ' ' }.keys.first
   end
 end
 
@@ -99,31 +99,41 @@ def player_places_piece!(brd)
   brd[square] = PLAYER_MARKER
 end
 
-def computer_fallbacks(brd)
-  if empty_squares(brd).include?(5)
-    return 5
-  else
-    return empty_squares(brd).sample
-  end
+def random_square(brd)
+  return empty_squares(brd).sample
 end
 
-def computer_places_piece!(brd)
+def square_5_if_available(brd)
+  square = nil
+  if empty_squares(brd).include?(5)
+    square = 5
+  end
+  square
+end
+
+def offensive_move(brd)
   square = nil
   WINNING_LINES.each do |line|
     square = find_at_risk_square(line, brd, COMPUTER_MARKER)
     break if square
   end
+  square
+end
 
-  if !square
-    WINNING_LINES.each do |line|
-      square = find_at_risk_square(line, brd, PLAYER_MARKER)
-      break if square
-    end
+def defensive_move(brd)
+  square = nil
+  WINNING_LINES.each do |line|
+    square = find_at_risk_square(line, brd, PLAYER_MARKER)
+    break if square
   end
+  square
+end
 
-  if !square
-    square = computer_fallbacks(brd)
-  end
+def computer_places_piece!(brd)
+  square = offensive_move(brd)
+  square = defensive_move(brd) unless square
+  square = square_5_if_available(brd) unless square
+  square = random_square(brd) unless square
 
   brd[square] = COMPUTER_MARKER
 end
@@ -174,13 +184,9 @@ loop do
 
   loop do
     board = initialize_board
-    current_player = 'choose'
+    current_player = choose_who_goes_first
 
     loop do
-      if current_player == 'choose'
-        current_player = choose_who_goes_first
-      end
-
       display_board(board)
       display_current_score(current_score)
 
