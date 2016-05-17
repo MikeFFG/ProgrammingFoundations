@@ -1,6 +1,6 @@
 require 'pry'
 
-SUITS = ['H', 'S', 'C', 'D'].freeze
+SUITS = ['Hearts', 'Spades', 'Clubs', 'Diamonds'].freeze
 VALUES = ['A', '2', '3', '4', '5', '6', '7'] +
          ['8', '9', '10', 'J', 'Q', 'K'].freeze
 
@@ -10,6 +10,10 @@ end
 
 def initialize_deck
   SUITS.product(VALUES).shuffle
+end
+
+def clear_screen
+  system('clear') || system('cls')
 end
 
 def total(cards)
@@ -121,11 +125,13 @@ loop do # Single Game Loop
   current_deck = initialize_deck
   player_hand, dealer_hand = deal_cards(current_deck)
   loop do # Player Turn Loop
+    clear_screen
     display_initial_hands(player_hand, dealer_hand)
     prompt "Your total is: #{total(player_hand)}"
     hit_or_stay = player_choice
 
     if hit_or_stay == 'hit'
+      clear_screen
       player_hand = hits!(player_hand, current_deck)
       prompt "You chose to hit!"
       prompt "Your cards are now: #{player_hand}"
@@ -143,6 +149,8 @@ loop do # Single Game Loop
     end
   end
 
+  clear_screen
+  
   prompt "Dealer's turn now."
 
   loop do # Dealer Turn Loop
